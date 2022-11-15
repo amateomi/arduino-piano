@@ -9,7 +9,6 @@ char logBuffer[256];
 #define LOG(...)
 #endif
 
-
 constexpr auto keyboardPin = A5;
 constexpr auto buzzerPin = 2;
 
@@ -36,6 +35,8 @@ void setup() {
   while (!Serial) {}
   LOG("Setup finished");
 #endif
+  pinMode(keyboardPin, INPUT);
+  pinMode(buzzerPin, OUTPUT);
 }
 
 void loop() {
@@ -51,6 +52,9 @@ void loop() {
 
 /// Return frequency to play or -1 when no pressed buttons
 Note getNote(int voltage) {
+  if (voltage < 10)
+    return Note::NOT_NOTE;
+
   if (voltage < 38)
     return Note::C4_SHARP;
 
