@@ -9,10 +9,12 @@ char logBuffer[256];
 #define LOG(...)
 #endif
 
-constexpr auto keyboardPin = A5;
-constexpr auto buzzerPin = 2;
+constexpr auto KEYBOARD_PIN = A5;
+constexpr auto LOWER_OCTAVE_PIN = 8;
+constexpr auto UPPER_OCTAVE_PIN = 7;
+constexpr auto BUZZER_PIN = 2;
 
-enum class Note : unsigned {
+enum class Note {
   NOT_NOTE,
   C4 = 262,
   C4_SHARP = 277,
@@ -35,23 +37,66 @@ void setup() {
   while (!Serial) {}
   LOG("Setup finished");
 #endif
-  pinMode(keyboardPin, INPUT);
-  pinMode(buzzerPin, OUTPUT);
+  pinMode(KEYBOARD_PIN, INPUT);
+  pinMode(LOWER_OCTAVE_PIN, INPUT_PULLUP);
+  pinMode(UPPER_OCTAVE_PIN, INPUT_PULLUP);
+  pinMode(BUZZER_PIN, OUTPUT);
 }
 
 void loop() {
-  int voltage = analogRead(keyboardPin);
-  LOG("Analog input is %i", voltage);
-  if (auto note = getNote(voltage); note != Note::NOT_NOTE) {
-    auto frequency = static_cast<unsigned>(note);
-    tone(buzzerPin, frequency);
-  } else {
-    noTone(buzzerPin);
-  }
+  const auto currentOctave = handleOctaveSwitch();
+  handleKeyboardPlay(currentOctave);
 }
 
-/// Return frequency to play or -1 when no pressed buttons
-Note getNote(int voltage) {
+// Octave switch block
+
+constexpr auto LOWEST_OCTAVE = -3;
+constexpr auto HIGHEST_OCTAVE = 3;
+
+int handleOctaveSwitch() {
+  static auto currentOctave = 0;
+
+  static auto isLowerButtonPressed = false;
+  static auto isUpperButtonPressed = false;
+
+  // Handle lower button
+  if (digitalRead(LOWER_OCTAVE_PIN) == LOW && !isLowerButtonPressed) {
+    isLowerButtonPressed = true;
+    if (currentOctave != LOWEST_OCTAVE)
+      --currentOctave;
+    LOG("Lower button is pressed, current octave is %i", currentOctave)
+  } else if (digitalRead(LOWER_OCTAVE_PIN) == HIGH && isLowerButtonPressed) {
+    isLowerButtonPressed = false;
+    LOG("Lower button is released, current octave is %i", currentOctave)
+  }
+
+  // Handle upper button
+  if (digitalRead(UPPER_OCTAVE_PIN) == LOW && !isUpperButtonPressed) {
+    isUpperButtonPressed = true;
+    if (currentOctave != HIGHEST_OCTAVE)
+      ++currentOctave;
+    LOG("Upper button is pressed, current octave is %i", currentOctave)
+  } else if (digitalRead(UPPER_OCTAVE_PIN) == HIGH && isUpperButtonPressed) {
+    isUpperButtonPressed = false;
+    LOG("Upper button is released, current octave is %i", currentOctave)
+  }
+
+  return currentOctave;
+}
+
+void handleKeyboardPlay(int currentOctave) {
+  const auto voltage = analogRead(KEYBOARD_PIN);
+  LOG("Analog input is %i", voltage);
+  if (const auto note = voltageToNote(voltage);
+      note != Note::NOT_NOTE) {
+    const auto frequency = noteToFrequency(note, currentOctave);
+    LOG("Frequency to play is %u", frequency);
+    tone(BUZZER_PIN, frequency);
+  } else
+    noTone(BUZZER_PIN);
+}
+
+Note voltageToNote(int voltage) {
   if (voltage < 10)
     return Note::NOT_NOTE;
 
@@ -92,4 +137,10 @@ Note getNote(int voltage) {
     return Note::B4;
 
   return Note::NOT_NOTE;
+}
+
+unsigned int noteToFrequency(Note note, int currentOctave) {
+  if (currentOctave < 0)
+    return static_cast<unsigned int>(note) >> abs(currentOctave);
+  return static_cast<unsigned int>(note) << currentOctave;
 }
