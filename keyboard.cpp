@@ -1,3 +1,4 @@
+#include "Arduino.h"
 #include "keyboard.hpp"
 
 #include "debug.hpp"
@@ -13,7 +14,8 @@ Keyboard::Keyboard() {
 }
 
 void Keyboard::update() {
-  if (digitalRead(LOWER_OCTAVE_PIN) == LOW && !m_isLowerPressed) {
+  if (const int buttonStatus = digitalRead(LOWER_OCTAVE_PIN);
+      buttonStatus == LOW && !m_isLowerPressed) {
     m_isLowerPressed = true;
 
     if (m_currentOctave != LOWEST_OCTAVE)
@@ -21,13 +23,14 @@ void Keyboard::update() {
 
     LOG("Keyboard: Lower button is pressed, current octave=%i", m_currentOctave);
 
-  } else if (digitalRead(LOWER_OCTAVE_PIN) == HIGH && m_isLowerPressed) {
+  } else if (buttonStatus == HIGH && m_isLowerPressed) {
     m_isLowerPressed = false;
 
     LOG("Keyboard: Lower button is released, current octave=%i", m_currentOctave);
   }
 
-  if (digitalRead(UPPER_OCTAVE_PIN) == LOW && !m_isUpperPressed) {
+  if (const int buttonStatus = digitalRead(UPPER_OCTAVE_PIN);
+      buttonStatus == LOW && !m_isUpperPressed) {
     m_isUpperPressed = true;
 
     if (m_currentOctave != HIGHEST_OCTAVE)
@@ -35,7 +38,7 @@ void Keyboard::update() {
 
     LOG("Keyboard: Upper button is pressed, current octave=%i", m_currentOctave);
 
-  } else if (digitalRead(UPPER_OCTAVE_PIN) == HIGH && m_isUpperPressed) {
+  } else if (buttonStatus == HIGH && m_isUpperPressed) {
     m_isUpperPressed = false;
 
     LOG("Keyboard: Upper button is released, current octave=%i", m_currentOctave);
@@ -46,8 +49,10 @@ unsigned int Keyboard::getFrequency() const {
   const int voltage = analogRead(PIN);
   unsigned int frequency = voltageToFrequency(voltage);
   frequency = m_currentOctave < 0 ? frequency >> abs(m_currentOctave) : frequency << m_currentOctave;
-  
-  LOG("Keyboard: In voltage=%i, Out frequency=%u", voltage, frequency);
+
+  if (frequency != 0) {
+    LOG("Keyboard: In voltage=%i, Out frequency=%u", voltage, frequency);
+  }
 
   return frequency;
 }
