@@ -1,7 +1,7 @@
 #include "Arduino.h"
 #include "keyboard.hpp"
 
-#include "debug.hpp"
+#include "utility.hpp"
 
 // TODO: calculate at compile time
 const int Keyboard::OCTAVE_VOLTAGES[OCTAVE_NOTES_NUM]{ 38, 55, 84, 120, 196, 225, 259, 296, 322, 382, 464, 535 };
@@ -11,41 +11,15 @@ Keyboard::Keyboard() {
   pinMode(PIN, INPUT);
   pinMode(UPPER_OCTAVE_PIN, INPUT_PULLUP);
   pinMode(LOWER_OCTAVE_PIN, INPUT_PULLUP);
+  LOG("Keyboard: Created");
 }
 
-void Keyboard::update() {
-  if (const int buttonStatus = digitalRead(LOWER_OCTAVE_PIN);
-      buttonStatus == LOW && !m_isLowerPressed) {
-    m_isLowerPressed = true;
-
-    if (m_currentOctave != LOWEST_OCTAVE)
-      --m_currentOctave;
-
-    LOG("Keyboard: Lower button is pressed, current octave=%i", m_currentOctave);
-
-  } else if (buttonStatus == HIGH && m_isLowerPressed) {
-    m_isLowerPressed = false;
-
-    LOG("Keyboard: Lower button is released, current octave=%i", m_currentOctave);
-  }
-
-  if (const int buttonStatus = digitalRead(UPPER_OCTAVE_PIN);
-      buttonStatus == LOW && !m_isUpperPressed) {
-    m_isUpperPressed = true;
-
-    if (m_currentOctave != HIGHEST_OCTAVE)
-      ++m_currentOctave;
-
-    LOG("Keyboard: Upper button is pressed, current octave=%i", m_currentOctave);
-
-  } else if (buttonStatus == HIGH && m_isUpperPressed) {
-    m_isUpperPressed = false;
-
-    LOG("Keyboard: Upper button is released, current octave=%i", m_currentOctave);
-  }
+void Keyboard::updateCurrentOctave() {
+  PUSH_BUTTON_HANDLER(LOWER_OCTAVE_PIN, m_isLowerPressed, pressLowerCallback(), nullptr);
+  PUSH_BUTTON_HANDLER(UPPER_OCTAVE_PIN, m_isUpperPressed, pressUpperCallback(), nullptr);
 }
 
-unsigned int Keyboard::getFrequency() const {
+unsigned int Keyboard::getNoteFrequency() const {
   const int voltage = analogRead(PIN);
   unsigned int frequency = voltageToFrequency(voltage);
   frequency = m_currentOctave < 0 ? frequency >> abs(m_currentOctave) : frequency << m_currentOctave;
@@ -55,6 +29,20 @@ unsigned int Keyboard::getFrequency() const {
   }
 
   return frequency;
+}
+
+void Keyboard::pressLowerCallback() {
+  constexpr int LOWEST_OCTAVE{ -3 };
+  if (m_currentOctave != LOWEST_OCTAVE)
+    --m_currentOctave;
+  LOG("Keyboard: Lower button is pressed, current octave=%i", m_currentOctave);
+}
+
+void Keyboard::pressUpperCallback() {
+  constexpr int HIGHEST_OCTAVE{ 3 };
+  if (m_currentOctave != HIGHEST_OCTAVE)
+    ++m_currentOctave;
+  LOG("Keyboard: Upper button is pressed, current octave=%i", m_currentOctave);
 }
 
 unsigned int Keyboard::voltageToFrequency(int voltage) {

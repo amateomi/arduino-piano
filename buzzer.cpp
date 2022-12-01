@@ -2,10 +2,11 @@
 
 #include <Arduino.h>
 
-#include "debug.hpp"
+#include "utility.hpp"
 
 Buzzer::Buzzer() {
   pinMode(PIN, OUTPUT);
+  LOG("Buzzer: Created");
 }
 
 void Buzzer::play(unsigned int frequency) const {

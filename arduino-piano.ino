@@ -1,27 +1,28 @@
-#include "debug.hpp"
+#include "utility.hpp"
 #include "keyboard.hpp"
 #include "buzzer.hpp"
-#include "music-player.hpp"
+#include "recorder.hpp"
+#include "record_player.hpp"
 
 Keyboard* keyboard{};
 Buzzer* buzzer{};
-MusicPlayer* musicPlayer{};
+Recorder* recorder{};
+RecordPlayer* recordPlayer{};
 
 void setup() {
   Serial.begin(9600);
   SETUP();
   keyboard = new Keyboard;
   buzzer = new Buzzer;
-  musicPlayer = new MusicPlayer;
+  recorder = new Recorder;
+  recordPlayer = new RecordPlayer;
 }
 
 void loop() {
-  keyboard->update();
-  musicPlayer->update();
-  const unsigned int frequency = keyboard->getFrequency();
-  if (musicPlayer->isRecording())
-    musicPlayer->appendSound(frequency);
-  else if (musicPlayer->isPlayback())
-    musicPlayer->playback(*buzzer);
+  keyboard->updateCurrentOctave();
+  const unsigned int frequency = keyboard->getNoteFrequency();
+  recorder->updateRecordingState(frequency);
+  recordPlayer->updateCurrentMelody();
+  recordPlayer->updatePlaybackState(*buzzer);
   buzzer->play(frequency);
 }
