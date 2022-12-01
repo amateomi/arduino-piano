@@ -8,6 +8,7 @@ Buzzer* buzzer{};
 MusicPlayer* musicPlayer{};
 
 void setup() {
+  Serial.begin(9600);
   SETUP();
   keyboard = new Keyboard;
   buzzer = new Buzzer;

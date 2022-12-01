@@ -34,19 +34,25 @@ private:
       return !(*this == sound);
     }
 
+    bool isSeparator() const {
+      return frequency == 0 && duration == 0;
+    }
+    void setAsSeparator() {
+      frequency = 0;
+      duration = 0;
+    }
+
     unsigned int frequency{};
     unsigned long duration{};  //< Duration in milliseconds
   };
 
-  static const Sound MELODY_SEPARATOR;
+  Sound m_soundPool[SOUND_POOL_SIZE]{};
 
-  Sound m_soundPool[SOUND_POOL_SIZE];
-
-  Sound* m_currentMelody{ m_soundPool };
+  int m_currentMelody{};
   bool m_isPreviousPressed{};
   bool m_isNextPressed{};
 
-  Sound* m_recordMelody{ m_soundPool };  //< Points to next melody sound
+  int m_recordingIndex{};  //< Points to next melody sound
   bool m_isRecording{};
   bool m_isRecordingPressed{};
 

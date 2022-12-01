@@ -1,6 +1,6 @@
 #pragma once
 
-// #define DEBUG
+//#define DEBUG
 
 constexpr int LOG_MAX_SIZE{ 256 };
 
@@ -13,7 +13,6 @@ extern char logBuffer[LOG_MAX_SIZE];
   Serial.println(logBuffer)
 
 #define SETUP() \
-  Serial.begin(9600); \
   while (!Serial) {} \
   LOG("Setup finished")
 
