@@ -24,13 +24,12 @@ inline char logBuffer[LOG_MAX_LENGTH];
 
 #endif
 
-/// Used in update functions with buttons to set action on press and release
-#define PUSH_BUTTON_HANDLER(pin, isPressed, pressCallback, releaseCallback) \
+/// Used in update functions with buttons to set press callback
+#define PUSH_BUTTON_HANDLER(pin, isPressed, pressCallback) \
   if (const int buttonStatus = digitalRead(pin); \
       buttonStatus == LOW && !isPressed) { \
     isPressed = true; \
     pressCallback; \
   } else if (buttonStatus == HIGH && isPressed) { \
     isPressed = false; \
-    releaseCallback; \
   }

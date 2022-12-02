@@ -2,12 +2,6 @@
 
 class Sound {
 public:
-  Sound() = default;
-  Sound(unsigned int frequency, unsigned long duration);
-
-  [[nodiscard]] bool operator==(const Sound&) const;
-  [[nodiscard]] bool operator!=(const Sound&) const;
-
   [[nodiscard]] unsigned int frequency() const;
   [[nodiscard]] unsigned long duration() const;
   [[nodiscard]] bool isSeparator() const;
@@ -18,12 +12,26 @@ public:
 
   static constexpr int POOL_SIZE{ 64 };
 
-  [[nodiscard]] static const Sound& poolRead(int index);
-  [[nodiscard]] static Sound& poolWrite(int index);
-
 private:
-  static Sound s_pool[POOL_SIZE];
-
   unsigned int m_frequency{};
   unsigned long m_duration{};  //< Duration in milliseconds
+};
+
+class SoundPool {
+public:
+  static SoundPool& get();
+
+  SoundPool(const SoundPool&) = delete;
+  SoundPool& operator=(const SoundPool&) = delete;
+
+  static constexpr int CAPACITY{ 64 };
+
+  [[nodiscard]] Sound& operator[](int index);
+  [[nodiscard]] const Sound& operator[](int index) const;
+
+private:
+  SoundPool() = default;
+  ~SoundPool() = default;
+
+  Sound m_pool[CAPACITY]{};  //< All sounds are separators by default
 };

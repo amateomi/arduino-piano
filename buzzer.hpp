@@ -2,11 +2,17 @@
 
 class Buzzer {
 public:
-  Buzzer();
+  static Buzzer& get();
 
-  /// Play sound or stop playing if frequency = 0
+  Buzzer(const Buzzer&) = delete;
+  Buzzer& operator=(const Buzzer&) = delete;
+
+  /// Play sound or stop playing when frequency is 0
   void play(unsigned int frequency) const;
 
 private:
+  Buzzer();
+  ~Buzzer() = default;
+
   static constexpr int PIN{ 2 };
 };

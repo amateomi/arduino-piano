@@ -4,41 +4,48 @@
 
 #include "utility.hpp"
 #include "sound.hpp"
+#include "buzzer.hpp"
+
+RecordPlayer& RecordPlayer::get() {
+  static RecordPlayer instance;
+  return instance;
+}
 
 RecordPlayer::RecordPlayer() {
   pinMode(PLAYBACK_PIN, INPUT_PULLUP);
   pinMode(PREVIOUS_MELODY_PIN, INPUT_PULLUP);
   pinMode(NEXT_MELODY_PIN, INPUT_PULLUP);
-  LOG("RecordPlayer: Created");
+  LOG("RecordPlayer: Created and attached to playback pin=%i, previous melody pin=%i, next melody pin=%i",
+      PLAYBACK_PIN, PREVIOUS_MELODY_PIN, NEXT_MELODY_PIN);
 }
 
 void RecordPlayer::updateCurrentMelody() {
-  PUSH_BUTTON_HANDLER(PREVIOUS_MELODY_PIN, m_isPreviousButtonPressed, pressPreviousCallback(), nullptr);
-  PUSH_BUTTON_HANDLER(NEXT_MELODY_PIN, m_isNextButtonPressed, pressNextCallback(), nullptr);
+  PUSH_BUTTON_HANDLER(PREVIOUS_MELODY_PIN, m_isPreviousButtonPressed, pressPreviousCallback());
+  PUSH_BUTTON_HANDLER(NEXT_MELODY_PIN, m_isNextButtonPressed, pressNextCallback());
 }
 
-void RecordPlayer::updatePlaybackState(const Buzzer& buzzer) {
-  PUSH_BUTTON_HANDLER(PLAYBACK_PIN, m_isPlaybackButtonPressed, pressPlaybackCallback(buzzer), nullptr);
+void RecordPlayer::updatePlaybackState() {
+  PUSH_BUTTON_HANDLER(PLAYBACK_PIN, m_isPlaybackButtonPressed, pressPlaybackCallback());
 }
 
-void RecordPlayer::pressPlaybackCallback(const Buzzer& buzzer) {
-  for (int i = m_melodyIndex; !Sound::poolRead(i).isSeparator(); ++i) {
-    buzzer.play(Sound::poolRead(i).frequency());
-    delay(Sound::poolRead(i).duration());
+void RecordPlayer::pressPlaybackCallback() const {
+  for (int i = m_melodyIndex; !SoundPool::get()[i].isSeparator() && i != SoundPool::CAPACITY; ++i) {
+    Buzzer::get().play(SoundPool::get()[i].frequency());
+    delay(SoundPool::get()[i].duration());
     LOG("RecordPlayer: playback sound={ frequency=%u, duration=%lu }",
-        Sound::poolRead(i).frequency(),
-        Sound::poolRead(i).duration());
+        SoundPool::get()[i].frequency(),
+        SoundPool::get()[i].duration());
   }
 }
 
 void RecordPlayer::pressPreviousCallback() {
   setPreviousMelodyIndex();
-  LOG("RecordPlayer: Previous button is pressed, current melodyIndex=%i", m_melodyIndex);
+  LOG("RecordPlayer: Previous button is pressed, melody index=%i", m_melodyIndex);
 }
 
 void RecordPlayer::pressNextCallback() {
   setNextMelodyIndex();
-  LOG("RecordPlayer: Next button is pressed, current melodyIndex=%i", m_melodyIndex);
+  LOG("RecordPlayer: Next button is pressed, melody index=%i", m_melodyIndex);
 }
 
 void RecordPlayer::setPreviousMelodyIndex() {
@@ -46,16 +53,16 @@ void RecordPlayer::setPreviousMelodyIndex() {
     return;
 
   --m_melodyIndex;
-  while(m_melodyIndex != 0 && !Sound::poolRead(m_melodyIndex - 1).isSeparator())
+  while (m_melodyIndex != 0 && !SoundPool::get()[m_melodyIndex - 1].isSeparator())
     --m_melodyIndex;
 }
 
 void RecordPlayer::setNextMelodyIndex() {
   int nextIndex = m_melodyIndex + 1;
-  while (nextIndex < Sound::POOL_SIZE && !Sound::poolRead(nextIndex - 1).isSeparator())
+  while (nextIndex < Sound::POOL_SIZE && !SoundPool::get()[nextIndex - 1].isSeparator())
     ++nextIndex;
 
-  if (nextIndex == Sound::POOL_SIZE || Sound::poolRead(nextIndex).isSeparator())
+  if (nextIndex == Sound::POOL_SIZE || SoundPool::get()[nextIndex].isSeparator())
     return;
 
   m_melodyIndex = nextIndex;

@@ -1,16 +1,21 @@
 #pragma once
 
-#include "buzzer.hpp"
-
 class RecordPlayer {
 public:
-  RecordPlayer();
+  static RecordPlayer& get();
+
+  RecordPlayer(const RecordPlayer&) = delete;
+  RecordPlayer& operator=(const RecordPlayer&) = delete;
 
   void updateCurrentMelody();
-  void updatePlaybackState(const Buzzer&);
+  void updatePlaybackState();
 
 private:
-  void pressPlaybackCallback(const Buzzer&);
+  RecordPlayer();
+  ~RecordPlayer() = default;
+
+  void pressPlaybackCallback() const;
+
   void pressPreviousCallback();
   void pressNextCallback();
 
@@ -21,9 +26,10 @@ private:
   static constexpr int PREVIOUS_MELODY_PIN{ 4 };
   static constexpr int NEXT_MELODY_PIN{ 3 };
 
+  int m_melodyIndex{};  //< Current melody index to read from SoundPool
+
   bool m_isPlaybackButtonPressed{};
 
-  int m_melodyIndex{};  //< Sound pool melody index
   bool m_isPreviousButtonPressed{};
   bool m_isNextButtonPressed{};
 };

@@ -4,9 +4,14 @@
 
 #include "utility.hpp"
 
+Buzzer& Buzzer::get() {
+  static Buzzer instance;
+  return instance;
+}
+
 Buzzer::Buzzer() {
   pinMode(PIN, OUTPUT);
-  LOG("Buzzer: Created");
+  LOG("Buzzer: Created and attached to pin=%i", PIN);
 }
 
 void Buzzer::play(unsigned int frequency) const {

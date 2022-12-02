@@ -2,20 +2,28 @@
 
 class Recorder {
 public:
-  Recorder();
+  static Recorder& get();
+
+  Recorder(const Recorder&) = delete;
+  Recorder& operator=(const Recorder&) = delete;
 
   void updateRecordingState(unsigned int frequency);
 
 private:
-  void pressCallback();
-  void beginMelody();
-  void endMelody() const;
+  Recorder();
+  ~Recorder() = default;
 
+  void pressCallback();
+  void beginMelody() const;
+  void endMelody() const;
   void appendMelodySound(unsigned int frequency);
 
   static constexpr int PIN{ 6 };
 
-  int m_index{};  //< Sound pool next write index
+  int m_nextSoundIndex{};  //< Next index in SoundPool to write
+  
   bool m_isRecording{};
   bool m_isButtonPressed{};
+  
+  bool m_wasOutOfBoundWriteAttempt{};
 };
