@@ -1,6 +1,6 @@
 #include "sound.hpp"
 
-Sound Sound::s_pool[SOUND_POOL_SIZE]{};
+Sound Sound::s_pool[POOL_SIZE]{};
 
 Sound::Sound(unsigned int frequency, unsigned long duration)
   : m_frequency{ frequency }, m_duration{ duration } {}

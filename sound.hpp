@@ -16,12 +16,13 @@ public:
   void setDuration(unsigned long);
   void setAsSeparator();
 
+  static constexpr int POOL_SIZE{ 64 };
+
   [[nodiscard]] static const Sound& poolRead(int index);
   [[nodiscard]] static Sound& poolWrite(int index);
 
 private:
-  static constexpr int SOUND_POOL_SIZE{ 64 };
-  static Sound s_pool[SOUND_POOL_SIZE];
+  static Sound s_pool[POOL_SIZE];
 
   unsigned int m_frequency{};
   unsigned long m_duration{};  //< Duration in milliseconds

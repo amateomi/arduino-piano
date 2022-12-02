@@ -25,18 +25,17 @@ void Recorder::pressCallback() {
 }
 
 void Recorder::beginMelody() {
-  Sound::poolWrite(m_index).setAsSeparator();
-  ++m_index;
   LOG("Recorder: Begin");
 }
 
 void Recorder::endMelody() const {
-  Sound::poolWrite(m_index - 1).setAsSeparator();
+  if (m_index != 0)
+    Sound::poolWrite(m_index - 1).setAsSeparator();
   LOG("Recorder: End");
 }
 
 void Recorder::appendMelodySound(unsigned int frequency) {
-  if (Sound::poolRead(m_index - 1).isSeparator()) {
+  if (m_index == 0 || Sound::poolRead(m_index - 1).isSeparator()) {
     if (frequency != 0) {
       Sound::poolWrite(m_index).setFrequency(frequency);
       Sound::poolWrite(m_index).setDuration(millis());

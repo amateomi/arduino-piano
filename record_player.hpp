@@ -11,6 +11,11 @@ public:
 
 private:
   void pressPlaybackCallback(const Buzzer&);
+  void pressPreviousCallback();
+  void pressNextCallback();
+
+  void setPreviousMelodyIndex();
+  void setNextMelodyIndex();
 
   static constexpr int PLAYBACK_PIN{ 5 };
   static constexpr int PREVIOUS_MELODY_PIN{ 4 };
