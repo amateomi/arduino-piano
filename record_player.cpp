@@ -29,7 +29,7 @@ void RecordPlayer::updatePlaybackState() {
 }
 
 void RecordPlayer::pressPlaybackCallback() const {
-  for (int i = m_melodyIndex; !SoundPool::get()[i].isSeparator() && i != SoundPool::CAPACITY; ++i) {
+  for (int i = m_melodyIndex; !SoundPool::get()[i].isSeparator(); ++i) {
     Buzzer::get().play(SoundPool::get()[i].frequency());
     delay(SoundPool::get()[i].duration());
     LOG("RecordPlayer: playback sound={ frequency=%u, duration=%lu }",

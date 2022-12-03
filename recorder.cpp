@@ -45,9 +45,10 @@ void Recorder::endMelody() const {
 void Recorder::appendMelodySound(unsigned int frequency) {
   if (m_nextSoundIndex == SoundPool::CAPACITY) {
     m_wasOutOfBoundWriteAttempt = true;
-    LOG("Recorder: Was out of bound write attempt");
+    SoundPool::get()[m_nextSoundIndex - 1].setAsSeparator();
     Buzzer::get().play(1337);
     delay(2000);
+    LOG("Recorder: Was out of bound write attempt");
     return;
   }
   
