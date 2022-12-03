@@ -2,9 +2,10 @@
 
 #define DEBUG
 
+constexpr int LOG_MAX_LENGTH{ 256 };
+
 #ifdef DEBUG
 
-constexpr int LOG_MAX_LENGTH{ 256 };
 inline char logBuffer[LOG_MAX_LENGTH];
 
 /// Printf-like logger
@@ -14,6 +15,7 @@ inline char logBuffer[LOG_MAX_LENGTH];
 
 /// Wait for Arduino connection to computer
 #define SETUP() \
+  Serial.begin(9600); \
   while (!Serial) {} \
   LOG("Setup finished")
 

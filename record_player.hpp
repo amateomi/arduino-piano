@@ -1,20 +1,16 @@
 #pragma once
 
+#include "buzzer.hpp"
+
 class RecordPlayer {
 public:
-  static RecordPlayer& get();
+  RecordPlayer();
 
-  RecordPlayer(const RecordPlayer&) = delete;
-  RecordPlayer& operator=(const RecordPlayer&) = delete;
-
+  void updatePlaybackState(const Buzzer&);
   void updateCurrentMelody();
-  void updatePlaybackState();
 
 private:
-  RecordPlayer();
-  ~RecordPlayer() = default;
-
-  void pressPlaybackCallback() const;
+  void pressPlaybackCallback(const Buzzer&) const;
 
   void pressPreviousCallback();
   void pressNextCallback();

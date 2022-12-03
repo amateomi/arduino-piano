@@ -4,12 +4,6 @@
 
 #include "utility.hpp"
 #include "sound.hpp"
-#include "buzzer.hpp"
-
-RecordPlayer& RecordPlayer::get() {
-  static RecordPlayer instance;
-  return instance;
-}
 
 RecordPlayer::RecordPlayer() {
   pinMode(PLAYBACK_PIN, INPUT_PULLUP);
@@ -19,22 +13,21 @@ RecordPlayer::RecordPlayer() {
       PLAYBACK_PIN, PREVIOUS_MELODY_PIN, NEXT_MELODY_PIN);
 }
 
+void RecordPlayer::updatePlaybackState(const Buzzer& buzzer) {
+  PUSH_BUTTON_HANDLER(PLAYBACK_PIN, m_isPlaybackButtonPressed, pressPlaybackCallback(buzzer));
+}
+
 void RecordPlayer::updateCurrentMelody() {
   PUSH_BUTTON_HANDLER(PREVIOUS_MELODY_PIN, m_isPreviousButtonPressed, pressPreviousCallback());
   PUSH_BUTTON_HANDLER(NEXT_MELODY_PIN, m_isNextButtonPressed, pressNextCallback());
 }
 
-void RecordPlayer::updatePlaybackState() {
-  PUSH_BUTTON_HANDLER(PLAYBACK_PIN, m_isPlaybackButtonPressed, pressPlaybackCallback());
-}
-
-void RecordPlayer::pressPlaybackCallback() const {
-  for (int i = m_melodyIndex; !SoundPool::get()[i].isSeparator(); ++i) {
-    Buzzer::get().play(SoundPool::get()[i].frequency());
-    delay(SoundPool::get()[i].duration());
+void RecordPlayer::pressPlaybackCallback(const Buzzer& buzzer) const {
+  for (int i = m_melodyIndex; !soundPool[i].isSeparator(); ++i) {
+    buzzer.play(soundPool[i]);
     LOG("RecordPlayer: playback sound={ frequency=%u, duration=%lu }",
-        SoundPool::get()[i].frequency(),
-        SoundPool::get()[i].duration());
+        soundPool[i].frequency(),
+        soundPool[i].duration());
   }
 }
 
@@ -53,16 +46,16 @@ void RecordPlayer::setPreviousMelodyIndex() {
     return;
 
   --m_melodyIndex;
-  while (m_melodyIndex != 0 && !SoundPool::get()[m_melodyIndex - 1].isSeparator())
+  while (m_melodyIndex != 0 && !soundPool[m_melodyIndex - 1].isSeparator())
     --m_melodyIndex;
 }
 
 void RecordPlayer::setNextMelodyIndex() {
   int nextIndex = m_melodyIndex + 1;
-  while (nextIndex < Sound::POOL_SIZE && !SoundPool::get()[nextIndex - 1].isSeparator())
+  while (nextIndex < POOL_CAPACITY && !soundPool[nextIndex - 1].isSeparator())
     ++nextIndex;
 
-  if (nextIndex == Sound::POOL_SIZE || SoundPool::get()[nextIndex].isSeparator())
+  if (nextIndex == POOL_CAPACITY || soundPool[nextIndex].isSeparator())
     return;
 
   m_melodyIndex = nextIndex;

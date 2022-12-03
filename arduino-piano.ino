@@ -4,16 +4,24 @@
 #include "record_player.hpp"
 #include "buzzer.hpp"
 
+Keyboard* keyboard{};
+Buzzer* buzzer{};
+Recorder* recorder{};
+RecordPlayer* recordPlayer{};
+
 void setup() {
-  Serial.begin(9600);
   SETUP();
+  keyboard = new Keyboard;
+  recorder = new Recorder;
+  recordPlayer = new RecordPlayer;
+  buzzer = new Buzzer;
 }
 
 void loop() {
-  Keyboard::get().updateCurrentOctave();
-  const unsigned int frequency = Keyboard::get().getNoteFrequency();
-  Recorder::get().updateRecordingState(frequency);
-  RecordPlayer::get().updateCurrentMelody();
-  RecordPlayer::get().updatePlaybackState();
-  Buzzer::get().play(frequency);
+  keyboard->updateCurrentOctave();
+  const unsigned int frequency = keyboard->getNoteFrequency();
+  recorder->updateRecordingState(*buzzer, frequency);
+  recordPlayer->updateCurrentMelody();
+  recordPlayer->updatePlaybackState(*buzzer);
+  buzzer->play(frequency);
 }

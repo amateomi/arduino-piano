@@ -20,15 +20,3 @@ void Sound::setAsSeparator() {
   m_frequency = 0;
   m_duration = 0;
 }
-
-SoundPool& SoundPool::get() {
-  static SoundPool instance;
-  return instance;
-}
-
-Sound& SoundPool::operator[](int index) {
-  return m_pool[index];
-}
-const Sound& SoundPool::operator[](int index) const {
-  return m_pool[index];
-}

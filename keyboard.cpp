@@ -70,11 +70,6 @@ const Keyboard::NoteFrequency Keyboard::MAIN_OCTAVE_FREQUENCIES[OCTAVE_NOTES_NUM
   Keyboard::NoteFrequency::B4,
 };
 
-Keyboard& Keyboard::get() {
-  static Keyboard instance;
-  return instance;
-}
-
 Keyboard::Keyboard() {
   pinMode(PIN, INPUT);
   pinMode(UPPER_OCTAVE_PIN, INPUT_PULLUP);

@@ -4,10 +4,7 @@
 
 class Keyboard {
 public:
-  static Keyboard& get();
-
-  Keyboard(const Keyboard&) = delete;
-  Keyboard& operator=(const Keyboard&) = delete;
+  Keyboard();
 
   void updateCurrentOctave();
 
@@ -15,9 +12,6 @@ public:
   [[nodiscard]] unsigned int getNoteFrequency() const;
 
 private:
-  Keyboard();
-  ~Keyboard() = default;
-
   void pressLowerCallback();
   void pressUpperCallback();
 

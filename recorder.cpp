@@ -4,22 +4,18 @@
 
 #include "utility.hpp"
 #include "sound.hpp"
-#include "buzzer.hpp"
-
-Recorder& Recorder::get() {
-  static Recorder instance;
-  return instance;
-}
 
 Recorder::Recorder() {
   pinMode(PIN, INPUT_PULLUP);
   LOG("Recorder: Created and attached to pin=%i", PIN);
 }
 
-void Recorder::updateRecordingState(unsigned int frequency) {
+void Recorder::updateRecordingState(const Buzzer& buzzer, unsigned int frequency) {
   PUSH_BUTTON_HANDLER(PIN, m_isButtonPressed, pressCallback());
-  if (m_isRecording && !m_wasOutOfBoundWriteAttempt)
-    appendMelodySound(frequency);
+  if (m_isRecording && !m_wasOutOfBoundWriteAttempt) {
+    if (!appendMelodySound(frequency))
+      buzzer.playAlarm();
+  }
 }
 
 void Recorder::pressCallback() {
@@ -38,36 +34,38 @@ void Recorder::beginMelody() const {
 
 void Recorder::endMelody() const {
   if (m_nextSoundIndex != 0)
-    SoundPool::get()[m_nextSoundIndex - 1].setAsSeparator();
+    soundPool[m_nextSoundIndex - 1].setAsSeparator();
   LOG("Recorder: End recording, next sound index=%i", m_nextSoundIndex);
 }
 
-void Recorder::appendMelodySound(unsigned int frequency) {
-  if (m_nextSoundIndex == SoundPool::CAPACITY) {
+bool Recorder::appendMelodySound(unsigned int frequency) {
+  if (m_nextSoundIndex == POOL_CAPACITY) {
     m_wasOutOfBoundWriteAttempt = true;
-    SoundPool::get()[m_nextSoundIndex - 1].setAsSeparator();
-    Buzzer::get().play(1337);
-    delay(2000);
-    LOG("Recorder: Was out of bound write attempt");
-    return;
+    soundPool[m_nextSoundIndex - 1].setAsSeparator();
+    LOG("Recorder: Out of bound write attempt");
+    return false;
   }
-  
-  if (m_nextSoundIndex == 0 || SoundPool::get()[m_nextSoundIndex - 1].isSeparator()) {
+
+  if (m_nextSoundIndex == 0 || soundPool[m_nextSoundIndex - 1].isSeparator()) {
     if (frequency != 0) {
-      SoundPool::get()[m_nextSoundIndex].setFrequency(frequency);
-      SoundPool::get()[m_nextSoundIndex].setDuration(millis());
+      soundPool[m_nextSoundIndex].setFrequency(frequency);
+      soundPool[m_nextSoundIndex].setDuration(millis());
       ++m_nextSoundIndex;
     }
-  } else if (SoundPool::get()[m_nextSoundIndex - 1].frequency() != frequency) {
-    const unsigned long duration = millis() - SoundPool::get()[m_nextSoundIndex - 1].duration();
-    SoundPool::get()[m_nextSoundIndex - 1].setDuration(duration);
+  } else if (soundPool[m_nextSoundIndex - 1].frequency() != frequency) {
+    if (const unsigned long duration = millis() - soundPool[m_nextSoundIndex - 1].duration();
+        duration > 0) {
+      soundPool[m_nextSoundIndex - 1].setDuration(duration);
 
-    LOG("Recorder: New sound={ frequency=%u, duration=%lu }",
-        SoundPool::get()[m_nextSoundIndex - 1].frequency(),
-        SoundPool::get()[m_nextSoundIndex - 1].duration());
+      LOG("Recorder: New sound={ frequency=%u, duration=%lu }",
+          soundPool[m_nextSoundIndex - 1].frequency(),
+          soundPool[m_nextSoundIndex - 1].duration());
 
-    SoundPool::get()[m_nextSoundIndex].setFrequency(frequency);
-    SoundPool::get()[m_nextSoundIndex].setDuration(millis());
-    ++m_nextSoundIndex;
+      soundPool[m_nextSoundIndex].setFrequency(frequency);
+      soundPool[m_nextSoundIndex].setDuration(millis());
+      ++m_nextSoundIndex;
+    }
   }
+
+  return true;
 }
