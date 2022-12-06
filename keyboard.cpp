@@ -40,7 +40,6 @@ constexpr int calculateMainOctaveVoltages(NoteResistance resistance) {
          * ARDUINO_MAX_ADC_VOLTAGE;
 }
 
-// TODO: calculate at compile time
 const int Keyboard::MAIN_OCTAVE_VOLTAGES[OCTAVE_NOTES_NUM]{
   calculateMainOctaveVoltages(NoteResistance::C4_SHARP),
   calculateMainOctaveVoltages(NoteResistance::C4),
