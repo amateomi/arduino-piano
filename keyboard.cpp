@@ -14,7 +14,7 @@ enum Resistor : long {
 };
 
 [[nodiscard]] constexpr long sumParallelResistors(Resistor r1, Resistor r2) {
-  return r1 * r2 / float(r1 + r2);
+  return r1 * r2 / static_cast<float>(r1 + r2);
 }
 
 enum class NoteResistance {
@@ -35,8 +35,8 @@ enum class NoteResistance {
 constexpr float ARDUINO_POWER_VOLTAGE = 5.0;
 constexpr int ARDUINO_MAX_ADC_VOLTAGE = 1024;
 
-constexpr int calculateMainOctaveVoltages(NoteResistance resistance) {
-  return static_cast<int>(resistance) / float(R0 + static_cast<int>(resistance))
+[[nodiscard]] constexpr int calculateMainOctaveVoltages(NoteResistance resistance) {
+  return static_cast<int>(resistance) / static_cast<float>(R0 + static_cast<int>(resistance))
          * ARDUINO_MAX_ADC_VOLTAGE;
 }
 
