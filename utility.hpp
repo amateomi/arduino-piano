@@ -2,7 +2,7 @@
 
 #define DEBUG
 
-constexpr int LOG_MAX_LENGTH{ 256 };
+constexpr int LOG_MAX_LENGTH{ 128 };
 
 #ifdef DEBUG
 
@@ -10,8 +10,10 @@ inline char logBuffer[LOG_MAX_LENGTH];
 
 /// Printf-like logger
 #define LOG(...) \
-  sprintf(logBuffer, __VA_ARGS__); \
-  Serial.println(logBuffer)
+  do { \
+    sprintf(logBuffer, __VA_ARGS__); \
+    Serial.println(logBuffer); \
+  } while (false)
 
 /// Wait for Arduino connection to computer
 #define SETUP() \

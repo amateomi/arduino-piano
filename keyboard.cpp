@@ -107,8 +107,9 @@ unsigned int Keyboard::getNoteFrequency() const {
   unsigned int frequency = mainOctaveVoltageToFrequency(voltage);
   frequency = m_currentOctave < 0 ? frequency >> abs(m_currentOctave) : frequency << m_currentOctave;
 
-  if (frequency != 0)
+  if (frequency != 0) {
     LOG("Keyboard: In voltage=%i, Out frequency=%u", voltage, frequency);
+  }
 
   return frequency;
 }

@@ -1,5 +1,6 @@
-#include "utility.hpp"
 #pragma once
+
+#include "utility.hpp"
 
 class Sound {
 public:
