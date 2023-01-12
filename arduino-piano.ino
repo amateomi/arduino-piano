@@ -1,27 +1,12 @@
-#include "utility.hpp"
+#include "notes.hpp"
 #include "keyboard.hpp"
-#include "recorder.hpp"
-#include "record_player.hpp"
-#include "buzzer.hpp"
 
 Keyboard* keyboard{};
-Buzzer* buzzer{};
-Recorder* recorder{};
-RecordPlayer* recordPlayer{};
 
 void setup() {
-  SETUP();
-  keyboard = new Keyboard;
-  recorder = new Recorder;
-  recordPlayer = new RecordPlayer;
-  buzzer = new Buzzer;
+  Keyboard::Resistors resistors{ 10000, 560, 1300, 2700, 3900, 5600, 7500, 10000 };
+  keyboard = new Keyboard{ A5, 8, 7, resistors };
 }
 
 void loop() {
-  keyboard->updateCurrentOctave();
-  const unsigned int frequency = keyboard->getNoteFrequency();
-  recorder->updateRecordingState(*buzzer, frequency);
-  recordPlayer->updateCurrentMelody();
-  recordPlayer->updatePlaybackState(*buzzer);
-  buzzer->play(frequency);
 }
