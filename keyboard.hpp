@@ -1,47 +1,52 @@
 #pragma once
 
-#include <Arduino.h>
+#include "notes.hpp"
+#include "octave.hpp"
 
 class Keyboard {
 public:
-  Keyboard();
+  // Resistance of all resistors in the keyboard circuit.
+  // R[0] is R1 and should be equal 10kOm.
+  // Resistance of R[1..7] should be sorted ascending.
+  using Resistors = unsigned long[8];
 
-  void updateCurrentOctave();
+  Keyboard(Resistors resistors,
+           uint8_t analogPin,
+           uint8_t decreaseOctaveButtonPin,
+           uint8_t increaseOctaveButtonPin);
 
-  /// Return frequency for Buzzer to play or 0 when none keyboard button are pressed
-  [[nodiscard]] unsigned int getNoteFrequency() const;
+  // Manage keyboard analog input and convert it into note
+  void OnUpdate();
+
+  // Return current note
+  [[nodiscard]] Note GetNote();
+
+  // Return current octave in range {1..7}
+  // where default (start value) is 4 (middle octave)
+  [[nodiscard]] int GetOctave();
 
 private:
-  void pressLowerCallback();
-  void pressUpperCallback();
+  [[nodiscard]] int calculateRealVoltage(int adcVoltage);
+  [[nodiscard]] Note matchVoltageWithNote(int voltage);
 
-  [[nodiscard]] static unsigned int mainOctaveVoltageToFrequency(int voltage);
+  [[nodiscard]] int calculateNoteVoltage(unsigned long noteResistance);
 
-  static constexpr int PIN{ A5 };
-  static constexpr int UPPER_OCTAVE_PIN{ 7 };
-  static constexpr int LOWER_OCTAVE_PIN{ 8 };
+  const Resistors RESISTORS;
+  const Note NOTES[NOTES_AMOUNT]{ Note::C4,
+                                  Note::C4_SHARP,
+                                  Note::D4,
+                                  Note::D4_SHARP,
+                                  Note::E4,
+                                  Note::F4,
+                                  Note::F4_SHARP,
+                                  Note::G4,
+                                  Note::G4_SHARP,
+                                  Note::A4,
+                                  Note::A4_SHARP,
+                                  Note::B4 };
+  const int NOTES_VOLTAGE[NOTES_AMOUNT];
 
-  enum NoteFrequency : unsigned int {
-    C4 = 262,
-    C4_SHARP = 277,
-    D4 = 294,
-    D4_SHARP = 311,
-    E4 = 330,
-    F4 = 349,
-    F4_SHARP = 370,
-    G4 = 392,
-    G4_SHARP = 415,
-    A4 = 440,
-    A4_SHARP = 466,
-    B4 = 494,
-  };
-
-  static constexpr int OCTAVE_NOTES_NUM{ 12 };
-  static const int MAIN_OCTAVE_VOLTAGES[OCTAVE_NOTES_NUM];
-  static const NoteFrequency MAIN_OCTAVE_FREQUENCIES[OCTAVE_NOTES_NUM];
-
-  int m_currentOctave{};
-
-  bool m_isLowerPressed{};
-  bool m_isUpperPressed{};
+  const uint8_t ANALOG_PIN;
+  Note m_CurrentNote{};
+  Octave m_Octave;
 };
