@@ -8,14 +8,14 @@ enum Pins : uint8_t {
   INCREASE_OCTAVE_BUTTON = 7,
   BUZZER = 2,
 };
-Keyboard::Resistors resistors{ .R1 = 10000,
-                               .R2 = 560,
-                               .R3 = 1300,
-                               .R4 = 2700,
-                               .R5 = 3900,
-                               .R6 = 5600,
-                               .R7 = 7500,
-                               .R8 = 10000 };
+Resistors resistors{ .R1 = 10000,
+                     .R2 = 560,
+                     .R3 = 1300,
+                     .R4 = 2700,
+                     .R5 = 3900,
+                     .R6 = 5600,
+                     .R7 = 7500,
+                     .R8 = 10000 };
 
 Keyboard* keyboard{};
 Buzzer* buzzer{};
