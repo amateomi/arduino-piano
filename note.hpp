@@ -18,3 +18,4 @@ enum class Note : unsigned int {
 };
 
 constexpr auto NOTES_AMOUNT = 12;
+

@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-#include "notes.hpp"
+#include "note.hpp"
 #include "octave.hpp"
 
 class Buzzer {
