@@ -1,7 +1,9 @@
 #include "button.hpp"
 
+#include <Arduino.h>
+
 Button::Button(uint8_t pin, uint8_t mode)
-  : PIN(pin) {
+  : PIN{pin} {
   pinMode(PIN, mode);
 }
 
