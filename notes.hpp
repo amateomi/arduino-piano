@@ -1,7 +1,7 @@
 #pragma once
 
 // Middle octave note frequencies
-enum class Note {
+enum class Note : unsigned int {
   NONE = 0,
   C4 = 262,
   C4_SHARP = 277,
