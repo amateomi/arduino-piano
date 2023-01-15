@@ -8,20 +8,16 @@
 class Recorder {
 public:
   Recorder(uint8_t pin,
-           MelodyStorage& melodyStorage,
-           const Keyboard& keyboard,
-           const Buzzer& buzzer)
+           MelodyStorage& melodyStorage)
     : m_ControlButton{ pin, INPUT_PULLUP },
-      m_MelodyStorage{ melodyStorage },
-      m_Keyboard{ keyboard },
-      m_Buzzer{ buzzer } {
+      m_MelodyStorage{ melodyStorage } {
     log("Recorder created");
   }
 
   // Handle recording state and control melody writing process
-  void OnUpdate() {
-    const auto frequency = Octave::MatchNoteWithFrequency(m_Keyboard.GetNote(),
-                                                          m_Keyboard.GetOctave());
+  void OnUpdate(const Keyboard& keyboard, const Buzzer& buzzer) {
+    const auto frequency = Octave::MatchNoteWithFrequency(keyboard.GetNote(),
+                                                          keyboard.GetOctave());
 
     switch (const auto event = m_ControlButton.OnUpdate()) {
       case Button::Event::PRESS:
@@ -33,7 +29,7 @@ public:
         log("Recorder: %s", (m_IsRecording ? "on" : "off"));
         if (m_IsRecording) {
           if (!m_MelodyStorage.StartRecording(frequency)) {
-            reactToStorageOverflow();
+            reactToStorageOverflow(buzzer);
           }
         } else {
           m_MelodyStorage.StopRecording();
@@ -43,7 +39,7 @@ public:
       case Button::Event::NONE:
         if (m_IsRecording) {
           if (!m_MelodyStorage.UpdateMelody(frequency)) {
-            reactToStorageOverflow();
+            reactToStorageOverflow(buzzer);
           }
         }
         break;
@@ -51,15 +47,13 @@ public:
   }
 
 private:
-  void reactToStorageOverflow() {
+  void reactToStorageOverflow(const Buzzer& buzzer) {
     log("Recorder: overflow attempt detected");
-    m_Buzzer.PlayAlarm();
-    m_IsRecording = false;    
+    buzzer.PlayAlarm();
+    m_IsRecording = false;
   }
 
   Button m_ControlButton;
   bool m_IsRecording{};
   MelodyStorage& m_MelodyStorage;
-  const Keyboard& m_Keyboard;
-  const Buzzer& m_Buzzer;
 };
