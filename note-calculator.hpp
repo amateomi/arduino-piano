@@ -46,7 +46,7 @@ public:
   // Return note according to given voltage.
   // For unknown voltages return Note::NONE.
   [[nodiscard]] Note matchVoltageWithNote(int voltage) const {
-    constexpr auto DEVIATION_ERROR = 10;
+    constexpr auto DEVIATION_ERROR = 13;
     for (auto i = 0; i < NOTES_AMOUNT; ++i) {
       if (const auto delta = abs(NOTES_VOLTAGE[i] - voltage);
           delta < DEVIATION_ERROR) {

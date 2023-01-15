@@ -15,23 +15,21 @@ public:
   void Play(Note note, int octave) {
     const bool isChange = note != m_LastPlayedNote || octave != m_LastPlayedOctave;
     if (isChange) {
-      const auto frequency = MatchOctaveNoteWithFrequency(note, octave);
+      const auto frequency = Octave::MatchNoteWithFrequency(note, octave);
       frequency ? tone(PIN, frequency) : noTone(PIN);
 
       m_LastPlayedNote = note;
       m_LastPlayedOctave = octave;
 
-      log("Buzzer::Play frequency=%u (octave=%i)", frequency, octave);
+      log("Buzzer: play frequency=%u (octave=%i)", frequency, octave);
     }
   }
 
-private:
-  [[nodiscard]] unsigned int MatchOctaveNoteWithFrequency(Note note, int octave) {
-    const auto frequency = static_cast<unsigned int>(note);
-    octave -= Octave::MIDDLE_OCTAVE;
-    return (octave < 0) ? frequency >> abs(octave) : frequency << octave;
+  void PlayAlarm() const {
+
   }
 
+private:
   const uint8_t PIN;
   Note m_LastPlayedNote{ Note::NONE };
   int m_LastPlayedOctave{ Octave::MIDDLE_OCTAVE };
