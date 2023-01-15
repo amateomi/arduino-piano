@@ -1,6 +1,7 @@
 #pragma once
 
 #include "logger.hpp"
+#include "button.hpp"
 #include "melody-storage.hpp"
 #include "keyboard.hpp"
 #include "buzzer.hpp"
