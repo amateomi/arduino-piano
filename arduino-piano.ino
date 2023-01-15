@@ -2,13 +2,17 @@
 #include "keyboard.hpp"
 #include "buzzer.hpp"
 #include "recorder.hpp"
+#include "player.hpp"
 
 enum Pins : uint8_t {
   ANALOG_KEYBOARD = A5,
   DECREASE_OCTAVE_BUTTON = 8,
   INCREASE_OCTAVE_BUTTON = 7,
-  BUZZER = 2,
   RECORDER_BUTTON = 6,
+  PLAYBACK_BUTTON = 5,
+  PREVIOUS_MELODY_BUTTON = 4,
+  NEXT_MELODY_BUTTON = 3,
+  BUZZER = 2,
 };
 
 const Resistors resistors{ .R1 = 10000,
@@ -25,6 +29,7 @@ MelodyStorage melodyStorage;
 Keyboard* keyboard{};
 Buzzer* buzzer{};
 Recorder* recorder{};
+Player* player{};
 
 void setup() {
   log("Setup start");
@@ -34,10 +39,15 @@ void setup() {
                            Pins::DECREASE_OCTAVE_BUTTON,
                            Pins::INCREASE_OCTAVE_BUTTON };
 
-  buzzer = new Buzzer{ Pins::BUZZER };
-
   recorder = new Recorder{ Pins::RECORDER_BUTTON,
                            melodyStorage };
+
+  player = new Player{ Pins::PLAYBACK_BUTTON,
+                       Pins::PREVIOUS_MELODY_BUTTON,
+                       Pins::NEXT_MELODY_BUTTON,
+                       melodyStorage };
+
+  buzzer = new Buzzer{ Pins::BUZZER };
 
   log("Setup end");
 }
@@ -45,5 +55,6 @@ void setup() {
 void loop() {
   keyboard->OnUpdate();
   recorder->OnUpdate(*keyboard, *buzzer);
+  player->OnUpdate(*buzzer);
   buzzer->Play(keyboard->GetNote(), keyboard->GetOctave());
 }
