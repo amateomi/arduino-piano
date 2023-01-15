@@ -1,5 +1,6 @@
 #pragma once
 
+#include "note.hpp"
 #include "button.hpp"
 
 class Octave {
@@ -29,6 +30,13 @@ public:
   // where default (start value) is 4 (middle octave)
   [[nodiscard]] int GetOctave() const {
     return m_CurrentOctave;
+  }
+
+  // Convert note to frequency according to octave
+  [[nodiscard]] static unsigned int MatchNoteWithFrequency(Note note, int octave) {
+    const auto frequency = static_cast<unsigned int>(note);
+    octave -= Octave::MIDDLE_OCTAVE;
+    return (octave < 0) ? frequency >> abs(octave) : frequency << octave;
   }
 
 private:
