@@ -3,7 +3,7 @@
 #include <Arduino.h>
 
 inline bool wasSetup = false;
-inline char buffer[256];
+inline char buffer[128];
 
 template<typename... Args>
 void log(Args... args) {
