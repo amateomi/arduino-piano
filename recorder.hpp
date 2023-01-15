@@ -17,7 +17,7 @@ public:
 
   // Handle recording state and control melody writing process
   void OnUpdate(const Keyboard& keyboard, const Buzzer& buzzer) {
-    const auto frequency = Octave::MatchNoteWithFrequency(keyboard.GetNote(),
+    const auto frequency = Buzzer::MatchNoteWithFrequency(keyboard.GetNote(),
                                                           keyboard.GetOctave());
 
     switch (const auto event = m_ControlButton.OnUpdate()) {
@@ -29,7 +29,7 @@ public:
         m_IsRecording = !m_IsRecording;
         log("Recorder: %s", (m_IsRecording ? "on" : "off"));
         if (m_IsRecording) {
-          if (!m_MelodyStorage.StartRecording(frequency)) {
+          if (!m_MelodyStorage.StartRecording()) {
             reactToStorageOverflow(buzzer);
           }
         } else {

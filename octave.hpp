@@ -32,13 +32,6 @@ public:
     return m_CurrentOctave;
   }
 
-  // Convert note to frequency according to octave
-  [[nodiscard]] static unsigned int MatchNoteWithFrequency(Note note, int octave) {
-    const auto frequency = static_cast<unsigned int>(note);
-    octave -= Octave::MIDDLE_OCTAVE;
-    return (octave < 0) ? frequency >> abs(octave) : frequency << octave;
-  }
-
 private:
   void DecreaseOctave() {
     if (m_CurrentOctave != LOWEST_OCTAVE) {
