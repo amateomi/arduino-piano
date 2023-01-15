@@ -37,15 +37,13 @@ void setup() {
   buzzer = new Buzzer{ Pins::BUZZER };
 
   recorder = new Recorder{ Pins::RECORDER_BUTTON,
-                           melodyStorage,
-                           *keyboard,
-                           *buzzer };
+                           melodyStorage };
 
   log("Setup end");
 }
 
 void loop() {
   keyboard->OnUpdate();
-  recorder->OnUpdate();
+  recorder->OnUpdate(*keyboard, *buzzer);
   buzzer->Play(keyboard->GetNote(), keyboard->GetOctave());
 }
